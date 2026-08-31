@@ -1,0 +1,71 @@
+scripts/oracles/end-dev.mjs
+  s_0a1fdf7e8a0a56::t_09d019eb7894e0 1-38
+seed/tests/notes.test.mjs
+  s_0a1fdf7e8a0a56::t_bdb73d13cd3004 1-32
+README.md
+  s_0a1fdf7e8a0a56::t_5306e249b8c370 11,15-18,20-23
+lab-manifest.json
+  s_0a1fdf7e8a0a56::t_db69d8054c0193 5-17
+seed/src/notes.mjs
+  s_0a1fdf7e8a0a56::t_d3b47d6f131f26 1-36
+scripts/oracles/test-integrity.mjs
+  s_0a1fdf7e8a0a56::t_fc45e6af34eebf 1-58
+scripts/oracles/role-literals.mjs
+  s_0a1fdf7e8a0a56::t_224ada883b2eaa 1-53
+scripts/lab.mjs
+  s_0a1fdf7e8a0a56::t_7efe1f9b5a8268 1-358
+seed/tests/notes.test.mjs.trap-empty
+  s_0a1fdf7e8a0a56::t_4d915f8cc80ee7 1
+scripts/lib/lab-util.mjs
+  s_0a1fdf7e8a0a56::t_2e11704b964d5a 1-174
+seed/tests/format.test.mjs
+  s_0a1fdf7e8a0a56::t_9af236d5cf3a13 1-7
+scenarios/L1-S1.md
+  s_0a1fdf7e8a0a56::t_f68b7728a672bf 1-7
+seed/package.json
+  s_0a1fdf7e8a0a56::t_72f29c4c473316 1-8
+scripts/oracles/acceptance-class.mjs
+  s_0a1fdf7e8a0a56::t_a977ca2b4e6359 1-48
+seed/data/notes.json
+  s_0a1fdf7e8a0a56::t_398d1ed0b190a6 1-3
+scripts/oracles/isolation-home.mjs
+  s_0a1fdf7e8a0a56::t_bb698c76f3f921 1-23
+scripts/oracles/run-ledger.mjs
+  s_0a1fdf7e8a0a56::t_3ae72b6017e23f 1-44
+scenarios/L1-S3b.md
+  s_0a1fdf7e8a0a56::t_d43b49150cf26e 1-5
+seed/AGENTS.md
+  s_0a1fdf7e8a0a56::t_45f517ddd651c0 1-3
+scripts/oracles/version-pin.mjs
+  s_0a1fdf7e8a0a56::t_eb18750f3a39cc 1-22
+seed/src/format.mjs
+  s_0a1fdf7e8a0a56::t_e4a92b6c83940f 1-7
+scenarios/L1-S7b.md
+  s_0a1fdf7e8a0a56::t_e906f4e5141759 1-3
+scripts/seed-loop-gym.mjs
+  s_0a1fdf7e8a0a56::t_e06c78cca8e81f 35
+  s_0a1fdf7e8a0a56::t_e35c9f3167bd98 1-2,4-34,36-62,64,66,68-70
+  s_0a1fdf7e8a0a56::t_8ef09d30b731b7 3
+  s_0a1fdf7e8a0a56::t_4d0a8ec37806fd 63,65,67
+seed/src/cli.mjs
+  s_0a1fdf7e8a0a56::t_b823368e957070 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.32",
+  "base_commit_sha": "3e499bf1393f2fbb454bccb52c581598c2176c81",
+  "prompts": {},
+  "sessions": {
+    "s_0a1fdf7e8a0a56": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0569f-4634-76a2-a497-1e9417fb5396",
+        "model": "grok-4.6"
+      },
+      "human_author": "jj-flow lab seed <lab-seed@jj-flow.invalid>",
+      "custom_attributes": {
+        "internal_commit_event_allowlist": "codeup.aliyun.com,codeup-*,rd-*"
+      }
+    }
+  }
+}
