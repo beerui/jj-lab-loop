@@ -2,6 +2,9 @@
 
 jj-flow **实验场 Lab 1**：单仓 `ralph` + `review` + `end` 练习场。
 
+GitHub：https://github.com/beerui/jj-lab-loop  
+产品 pointer：https://github.com/beerui/jj-flow
+
 这不是生产项目族角色，**不要**命名为 项目A / `handoff` / `project-a`。
 
 | 字段 | 值 |
