@@ -2,6 +2,17 @@
   "id": "loop-gym",
   "display_name": "Loop gym",
   "harness_version": "0.1.3",
-  "jj_flow_commit": "cd891c051b765ebc243660dcab5408adf0d4554d",
-  "scenarios": []
+  "jj_flow_commit": "8e51498091ae51f611e63d1cd06330c62a23b921",
+  "scenarios": [
+    { "id": "L1-S2", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "tiny presentational path filter" },
+    { "id": "L1-S3a", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "false-green detector (ralph_ops may PASS)" },
+    { "id": "L1-S4", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "two-strikes stagnation" },
+    { "id": "L1-S5", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "test-integrity STOP" },
+    { "id": "L1-S6", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "resume + abandon reason" },
+    { "id": "L1-S7a", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "Current vs Landed" },
+    { "id": "L1-S8", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "judgment + end heuristic" },
+    { "id": "L1-S1", "cwd": "_materialized/loop-gym", "oracle_kind": "agent", "title": "standard write-then-read loop" },
+    { "id": "L1-S3b", "cwd": "_materialized/loop-gym", "oracle_kind": "agent", "title": "false-green agent must not cheat" },
+    { "id": "L1-S7b", "cwd": "_materialized/loop-gym", "oracle_kind": "agent", "title": "chat cannot advance gates" }
+  ]
 }
