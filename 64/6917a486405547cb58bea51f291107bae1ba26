@@ -1,0 +1,18 @@
+.gitignore
+  h_de8bd4c8716f43 1
+README.md
+  h_de8bd4c8716f43 1-20
+lab-manifest.json
+  h_de8bd4c8716f43 1-7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.32",
+  "base_commit_sha": "646917a486405547cb58bea51f291107bae1ba26",
+  "prompts": {},
+  "humans": {
+    "h_de8bd4c8716f43": {
+      "author": "jj-flow lab seed <lab-seed@jj-flow.invalid>"
+    }
+  }
+}
