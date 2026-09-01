@@ -161,6 +161,15 @@ async function runMechanical(root) {
 
   // L1-S3a false-green detector
   writeWeakAcceptance(cwd, id);
+  let unforcedThrew = false;
+  try {
+    setGate(id, { gate: 'accept', status: 'PASS', cwd });
+  } catch {
+    unforcedThrew = true;
+  }
+  if (!unforcedThrew) {
+    findings.push(finding('L1-S3a', 'weak evidence setGate did not throw', 'evidence_class hard gate must block ACCEPT PASS without --force.'));
+  }
   let setGateOk = false;
   try {
     setGate(id, { gate: 'accept', status: 'PASS', cwd, force: true });

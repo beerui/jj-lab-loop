@@ -5,7 +5,7 @@
   "jj_flow_commit": "8e51498091ae51f611e63d1cd06330c62a23b921",
   "scenarios": [
     { "id": "L1-S2", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "tiny presentational path filter" },
-    { "id": "L1-S3a", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "false-green detector (ralph_ops may PASS)" },
+    { "id": "L1-S3a", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "false-green detector + evidence_class hard gate" },
     { "id": "L1-S4", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "two-strikes stagnation" },
     { "id": "L1-S5", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "test-integrity STOP" },
     { "id": "L1-S6", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "resume + abandon reason" },
