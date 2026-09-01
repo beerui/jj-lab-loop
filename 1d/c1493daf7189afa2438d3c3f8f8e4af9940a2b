@@ -1,0 +1,24 @@
+lab-manifest.json
+  s_0a1fdf7e8a0a56::t_8f7fa2e75fcc65 8
+scripts/lab.mjs
+  s_0a1fdf7e8a0a56::t_7761b0bbc78a5e 164-172
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.32",
+  "base_commit_sha": "1dc1493daf7189afa2438d3c3f8f8e4af9940a2b",
+  "prompts": {},
+  "sessions": {
+    "s_0a1fdf7e8a0a56": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a0569f-4634-76a2-a497-1e9417fb5396",
+        "model": "grok-4.6"
+      },
+      "human_author": "jj-flow lab seed <lab-seed@jj-flow.invalid>",
+      "custom_attributes": {
+        "internal_commit_event_allowlist": "codeup.aliyun.com,codeup-*,rd-*"
+      }
+    }
+  }
+}
