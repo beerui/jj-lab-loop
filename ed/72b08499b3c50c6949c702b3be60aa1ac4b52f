@@ -1,0 +1,35 @@
+scripts/oracles/acceptance-class.mjs
+  s_a78f71b1a6fd98::t_65a50d713d6f01 9-10,14,17
+  s_a78f71b1a6fd98::t_53f4d6c519d400 3,8
+scripts/oracles/run-ledger.mjs
+  s_a78f71b1a6fd98::t_f80537896b3c1d 3,10
+  s_a78f71b1a6fd98::t_033d2fc64b8536 29,34,47
+  s_a78f71b1a6fd98::t_75d181e8430e9f 30-33,35-37,48-49,51
+scripts/lab.mjs
+  s_a78f71b1a6fd98::t_72af12e5d4f990 92,94-98,100-101,108-115,118,122
+  s_a78f71b1a6fd98::t_09077e1a678ed1 16-17,93,106-107,116-117,177,225,239,256,265,273,293,329,350,352
+  s_a78f71b1a6fd98::t_9a33f0cd2b256b 124-143
+scripts/lib/lab-util.mjs
+  s_a78f71b1a6fd98::t_e61afc762a8537 104-117
+scripts/oracles/test-integrity.mjs
+  s_a78f71b1a6fd98::t_14d415b4839006 4,7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.32",
+  "base_commit_sha": "ed72b08499b3c50c6949c702b3be60aa1ac4b52f",
+  "prompts": {},
+  "sessions": {
+    "s_a78f71b1a6fd98": {
+      "agent_id": {
+        "tool": "grok",
+        "id": "01a06130-9b86-7d02-ac2e-615f7947bd51",
+        "model": "grok-4.6"
+      },
+      "human_author": "jj-flow lab seed <lab-seed@jj-flow.invalid>",
+      "custom_attributes": {
+        "internal_commit_event_allowlist": "codeup.aliyun.com,codeup-*,rd-*"
+      }
+    }
+  }
+}
