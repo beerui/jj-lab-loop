@@ -1,18 +1,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { finding } from '../lib/lab-util.mjs';
+import { finding, ralphRunDir } from '../lib/lab-util.mjs';
 
 const ALLOW = /write_then_read:(mock_ok|runtime_ok)/;
 
 export function inspectAcceptance(cwd, runId) {
-  const file = path.join(cwd, '.workflow', 'ralph', runId, 'acceptance.md');
+  const dir = ralphRunDir(cwd, runId);
+  const taskPlan = path.join(dir, 'task_plan.md');
+  const file = fs.existsSync(taskPlan) ? taskPlan : path.join(dir, 'acceptance.md');
   const tests = path.join(cwd, 'tests', 'notes.test.mjs');
   const text = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
   const testText = fs.existsSync(tests) ? fs.readFileSync(tests, 'utf8') : '';
-  const header = text.split(/\r?\n/).find((line) => line.includes('|') && /item/i.test(line));
+  const header = text.split(/\r?\n/).find((line) => line.includes('|') && /item|项/i.test(line));
   const malformed = !header || !/must_id/i.test(header) || !/evidence_class/i.test(header);
   let weak = false;
-  const rows = text.split(/\r?\n/).filter((line) => /^\|/.test(line) && !/^\|\s*---/.test(line) && !/^\|\s*item\s*\|/i.test(line));
+  const rows = text.split(/\r?\n/).filter((line) => /^\|/.test(line) && !/^\|\s*---/.test(line) && !/^\|\s*(item|项)\s*\|/i.test(line));
   for (const row of rows) {
     const cells = row.split('|').map((c) => c.trim()).filter((c, i, arr) => i > 0 && i < arr.length);
     const evidenceClass = cells[2] || '';

@@ -1,10 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { finding, jjFlowRoot } from '../lib/lab-util.mjs';
+import { finding, jjFlowRoot, ralphRunDir } from '../lib/lab-util.mjs';
 
 function looksLikeFixRunLocal(run, cwd) {
-  const progress = path.join(cwd, '.workflow', 'ralph', run.run_id, 'progress.md');
+  const progress = path.join(ralphRunDir(cwd, run.run_id), 'progress.md');
   const text = fs.existsSync(progress) ? fs.readFileSync(progress, 'utf8') : '';
   if (/\bfailed_must\b/i.test(text) || /\buser_correction\b/i.test(text) || /\bover_claimed\b/i.test(text)) return true;
   const latest = Array.isArray(run.reviews) ? run.reviews[run.reviews.length - 1] : null;

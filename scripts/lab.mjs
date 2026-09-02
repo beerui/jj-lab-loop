@@ -13,6 +13,8 @@ import {
   jjFlowRoot,
   labRootFromEnv,
   materializedApp,
+  ralphRunDir,
+  ralphRunJsonPath,
   report,
   rmRetry,
   samePath,
@@ -87,23 +89,58 @@ function envPrint(root, productRoot) {
   return { ok, status: ok ? 'PASS' : 'STOP', stops, ...printed };
 }
 
+function ralphPlanFile(cwd, runId) {
+  const dir = ralphRunDir(cwd, runId);
+  const taskPlan = path.join(dir, 'task_plan.md');
+  if (fs.existsSync(taskPlan)) return taskPlan;
+  return path.join(dir, 'plan.md');
+}
+
 function writeWeakAcceptance(cwd, runId) {
-  const file = path.join(cwd, '.workflow', 'ralph', runId, 'acceptance.md');
-  const body = [
-    '# Acceptance',
-    '',
-    '| item | must_id | evidence_class | result | evidence |',
+  const table = [
+    '| 项 | must_id | evidence_class | 结果 | 证据 |',
     '| --- | --- | --- | --- | --- |',
     '| title persist | REQ-L1-001 | write-then-read | PASS | static |',
     ''
   ].join('\n');
-  fs.writeFileSync(file, body);
+  const dir = ralphRunDir(cwd, runId);
+  const taskPlan = path.join(dir, 'task_plan.md');
+  if (fs.existsSync(taskPlan)) {
+    const text = fs.readFileSync(taskPlan, 'utf8');
+    const next = /## 验收/.test(text)
+      ? text.replace(/## 验收[\s\S]*$/, '## 验收\n\n### 当前\n\n' + table)
+      : (text + '\n\n## 验收\n\n### 当前\n\n' + table);
+    fs.writeFileSync(taskPlan, next);
+    return;
+  }
+  fs.mkdirSync(dir, { recursive: true });
+  const file = path.join(dir, 'acceptance.md');
+  fs.writeFileSync(file, ['# Acceptance', '', table].join('\n'));
 }
 
 function rewritePlanCurrent(cwd, runId) {
-  const file = path.join(cwd, '.workflow', 'ralph', runId, 'plan.md');
+  const file = ralphPlanFile(cwd, runId);
   const text = fs.readFileSync(file, 'utf8');
-  const next = text.replace('## Current', '## Landed') + '\n## Current\n\n- new current after landed\n';
+  let next;
+  if (path.basename(file) === 'task_plan.md') {
+    const planMatch = /^## 计划\s*$/m.exec(text);
+    if (planMatch) {
+      const from = planMatch.index + planMatch[0].length;
+      const rest = text.slice(from);
+      const nextH2 = /^## /m.exec(rest);
+      const planBody = nextH2 ? rest.slice(0, nextH2.index) : rest;
+      const after = nextH2 ? rest.slice(nextH2.index) : '';
+      const rewrittenBody = planBody.replace('### 当前', '### 已落地');
+      next = text.slice(0, from)
+        + '\n\n### 当前\n\n- new current after landed\n'
+        + rewrittenBody
+        + after;
+    } else {
+      next = text.replace('### 当前', '### 已落地') + '\n### 当前\n\n- new current after landed\n';
+    }
+  } else {
+    next = text.replace('## Current', '## Landed') + '\n## Current\n\n- new current after landed\n';
+  }
   fs.writeFileSync(file, next);
   return next;
 }
@@ -137,7 +174,7 @@ async function runMechanical(root) {
   const ralph = await loadRalph(flow);
   const runId = ralph.buildRalphRunId
     ? null
-    : `RALPH-looptitle-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}`;
+    : 'task-looptitle';
   const { buildRalphRunId, initRun, setGate, recordDeliverAttempt, resumeRun, abandonRun,
     mapMergeFromRun, finalizeRun, evaluateAcceptArchiveGate, evaluateAcceptJudgment,
     loadRun, saveRun } = ralph;
@@ -185,7 +222,7 @@ async function runMechanical(root) {
   void setGateOk;
 
   // L1-S4 two-strikes
-  const strikeId = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopstrike', '20260831') : 'RALPH-loopstrike-20260831';
+  const strikeId = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopstrike', '20260831') : 'task-loopstrike';
   initRun({
     run_id: strikeId,
     title: 'two strikes',
@@ -199,7 +236,7 @@ async function runMechanical(root) {
   if (second.intervention_needed?.kind !== 'STAGNATION' || second.status !== 'BLOCKED') {
     findings.push(finding('L1-S4', `expected STAGNATION BLOCKED, got ${second.status}/${second.intervention_needed?.kind}`, 'Call recordDeliverAttempt improved:false twice.'));
   }
-  const correction = path.join(cwd, '.workflow', 'ralph', strikeId, 'instruction-correction.md');
+  const correction = path.join(ralphRunDir(cwd, strikeId), 'instruction-correction.md');
   if (!fs.existsSync(correction)) {
     if (typeof ralph.writeInstructionCorrection === 'function') {
       ralph.writeInstructionCorrection(strikeId, cwd, { count: 2, repeated_signal: 'lab' });
@@ -216,7 +253,7 @@ async function runMechanical(root) {
   }
 
   // L1-S5 test integrity
-  const integId = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopinteg', '20260831') : 'RALPH-loopinteg-20260831';
+  const integId = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopinteg', '20260831') : 'task-loopinteg';
   initRun({
     run_id: integId,
     title: 'integrity',
@@ -225,7 +262,7 @@ async function runMechanical(root) {
     attach_knowledge: false,
     force: true
   }, cwd);
-  const progress = path.join(cwd, '.workflow', 'ralph', integId, 'progress.md');
+  const progress = path.join(ralphRunDir(cwd, integId), 'progress.md');
   fs.appendFileSync(progress, '\n- failed_must title persist still broken\n');
   fs.copyFileSync(path.join(cwd, 'tests', 'notes.test.mjs.trap-empty'), path.join(cwd, 'tests', 'notes.test.mjs'));
   const integRun = loadRun(integId, cwd);
@@ -233,7 +270,7 @@ async function runMechanical(root) {
   findings.push(...integ.findings);
   evaluateAcceptArchiveGate(integRun, { cwd });
 
-  const tinyId = typeof buildRalphRunId === 'function' ? buildRalphRunId('looptiny', '20260831') : 'RALPH-looptiny-20260831';
+  const tinyId = typeof buildRalphRunId === 'function' ? buildRalphRunId('looptiny', '20260831') : 'task-looptiny';
   initRun({
     run_id: tinyId,
     title: 'tiny format',
@@ -253,7 +290,7 @@ async function runMechanical(root) {
   }
 
   // L1-S6 resume/abandon
-  const lifeId = typeof buildRalphRunId === 'function' ? buildRalphRunId('looplife', '20260831') : 'RALPH-looplife-20260831';
+  const lifeId = typeof buildRalphRunId === 'function' ? buildRalphRunId('looplife', '20260831') : 'task-looplife';
   initRun({
     run_id: lifeId,
     title: 'lifecycle',
@@ -289,7 +326,7 @@ async function runMechanical(root) {
   findings.push(...checkCurrentPolicy(planText).findings);
 
   // L1-S8 end orthogonal + judgment
-  const strictId = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopstrict', '20260831') : 'RALPH-loopstrict-20260831';
+  const strictId = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopstrict', '20260831') : 'task-loopstrict';
   initRun({
     run_id: strictId,
     title: 'strict',
@@ -310,9 +347,9 @@ async function runMechanical(root) {
   findings.push(...checkEndOrthogonal(cwd, before, after).findings);
 
   // isolation negative: dummy TC dir does not change run hash / we have no plane revision here
-  const hashBefore = crypto.createHash('sha256').update(fs.readFileSync(path.join(cwd, '.workflow', 'ralph', strictId, 'run.json'))).digest('hex');
+  const hashBefore = crypto.createHash('sha256').update(fs.readFileSync(ralphRunJsonPath(cwd, strictId))).digest('hex');
   fs.mkdirSync(path.join(cwd, '.workflow', 'team', 'TC-lab-dummy'), { recursive: true });
-  const hashAfter = crypto.createHash('sha256').update(fs.readFileSync(path.join(cwd, '.workflow', 'ralph', strictId, 'run.json'))).digest('hex');
+  const hashAfter = crypto.createHash('sha256').update(fs.readFileSync(ralphRunJsonPath(cwd, strictId))).digest('hex');
   if (hashBefore !== hashAfter) {
     findings.push(finding('L1-ISO', 'dummy TC-* changed run.json', 'Team engines must not advance checkpoints.'));
   }

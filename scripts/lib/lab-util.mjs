@@ -101,6 +101,20 @@ export function gitToplevel(cwd) {
   }
 }
 
+/** Live run dir: P2 `tasks/<id>/` first, then leftover `ralph/<id>/`. */
+export function ralphRunDir(cwd, runId) {
+  const tasks = path.join(cwd, '.workflow', 'ralph', 'tasks', runId);
+  if (fs.existsSync(tasks)) return tasks;
+  return path.join(cwd, '.workflow', 'ralph', runId);
+}
+
+export function ralphRunJsonPath(cwd, runId) {
+  const dir = ralphRunDir(cwd, runId);
+  const nested = path.join(dir, '.state', 'run.json');
+  if (fs.existsSync(nested)) return nested;
+  return path.join(dir, 'run.json');
+}
+
 export function snapshotFileSet(dir) {
   const out = new Set();
   if (!fs.existsSync(dir)) return out;
