@@ -1,16 +1,18 @@
 {
   "id": "loop-gym",
   "display_name": "Loop gym",
-  "harness_version": "0.1.3",
-  "jj_flow_commit": "8e51498091ae51f611e63d1cd06330c62a23b921",
+  "harness_version": "0.2.0",
+  "jj_flow_commit": "9feffc18f737a1520fb974ad73caa8d0f6d2b3db",
   "scenarios": [
     { "id": "L1-S2", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "tiny presentational path filter" },
     { "id": "L1-S3a", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "false-green detector + evidence_class hard gate" },
     { "id": "L1-S4", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "two-strikes stagnation" },
     { "id": "L1-S5", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "test-integrity STOP" },
     { "id": "L1-S6", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "resume + abandon reason" },
-    { "id": "L1-S7a", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "Current vs Landed" },
+    { "id": "L1-S7a", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "rewrite live Goal/验收/Steps; history in progress.md" },
     { "id": "L1-S8", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "judgment + end heuristic" },
+    { "id": "L1-S9", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "review-slice init refuse + 同需求提示" },
+    { "id": "L1-S10", "cwd": "_materialized/loop-gym", "oracle_kind": "mechanical", "title": "same-session thread_id refuses second init" },
     { "id": "L1-S1", "cwd": "_materialized/loop-gym", "oracle_kind": "agent", "title": "standard write-then-read loop" },
     { "id": "L1-S3b", "cwd": "_materialized/loop-gym", "oracle_kind": "agent", "title": "false-green agent must not cheat" },
     { "id": "L1-S7b", "cwd": "_materialized/loop-gym", "oracle_kind": "agent", "title": "chat cannot advance gates" }

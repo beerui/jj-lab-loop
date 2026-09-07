@@ -28,6 +28,7 @@ import { checkTestIntegrity } from './oracles/test-integrity.mjs';
 import { checkEndOrthogonal, heuristicIntegration, writeEndDryRun } from './oracles/end-dev.mjs';
 import { checkRoleLiterals } from './oracles/role-literals.mjs';
 import { checkCurrentPolicy, checkResumeAbandon, gatesHash } from './oracles/run-ledger.mjs';
+import { checkReviewSliceRefuse, checkSameRequirementIndex, checkSameSessionRefuse } from './oracles/same-requirement.mjs';
 
 function parseArgs(argv) {
   const out = { cmd: argv[2] || 'oracle', suite: 'mechanical', lab: 'loop-gym', json: false };
@@ -121,28 +122,43 @@ function writeWeakAcceptance(cwd, runId) {
 function rewritePlanCurrent(cwd, runId) {
   const file = ralphPlanFile(cwd, runId);
   const text = fs.readFileSync(file, 'utf8');
+  const progressFile = path.join(path.dirname(file), 'progress.md');
+  const goalMatch = /^## Goal\s*\n+([\s\S]*?)(?=\n## |\s*$)/m.exec(text);
+  const oldGoal = (goalMatch ? goalMatch[1] : '').trim();
+  const nextGoal = 'New contract after approach change';
   let next;
-  if (path.basename(file) === 'task_plan.md') {
-    const planMatch = /^## 计划\s*$/m.exec(text);
-    if (planMatch) {
-      const from = planMatch.index + planMatch[0].length;
-      const rest = text.slice(from);
-      const nextH2 = /^## /m.exec(rest);
-      const planBody = nextH2 ? rest.slice(0, nextH2.index) : rest;
-      const after = nextH2 ? rest.slice(nextH2.index) : '';
-      const rewrittenBody = planBody.replace('### 当前', '### 已落地');
-      next = text.slice(0, from)
-        + '\n\n### 当前\n\n- new current after landed\n'
-        + rewrittenBody
-        + after;
-    } else {
-      next = text.replace('### 当前', '### 已落地') + '\n### 当前\n\n- new current after landed\n';
-    }
+  if (/^## Goal\s*$/m.test(text)) {
+    next = text.replace(
+      /(^## Goal\s*\n+)([\s\S]*?)(?=\n## )/m,
+      `$1${nextGoal}\n\n`
+    );
   } else {
-    next = text.replace('## Current', '## Landed') + '\n## Current\n\n- new current after landed\n';
+    next = [
+      `# ${runId}`,
+      '',
+      '## Goal',
+      '',
+      nextGoal,
+      '',
+      '## 验收',
+      '',
+      '1. [ ] rewritten',
+      '',
+      '## Steps',
+      '',
+      '1. [ ] rewritten',
+      ''
+    ].join('\n');
   }
   fs.writeFileSync(file, next);
-  return next;
+  const progressWas = fs.existsSync(progressFile) ? fs.readFileSync(progressFile, 'utf8') : '';
+  const progressNext = progressWas
+    + (progressWas.endsWith('\n') || progressWas === '' ? '' : '\n')
+    + '\n## 2026-08-31 — approach change\n\n'
+    + '- was: ' + (oldGoal || '(empty)') + '\n'
+    + '- now: ' + nextGoal + '\n';
+  fs.writeFileSync(progressFile, progressNext);
+  return { plan: next, progress: progressNext };
 }
 
 function isWorkflowNoisePath(value) {
@@ -177,7 +193,7 @@ async function runMechanical(root) {
     : 'task-looptitle';
   const { buildRalphRunId, initRun, setGate, recordDeliverAttempt, resumeRun, abandonRun,
     mapMergeFromRun, finalizeRun, evaluateAcceptArchiveGate, evaluateAcceptJudgment,
-    loadRun, saveRun } = ralph;
+    loadRun, saveRun, INDEX_MD_REL } = ralph;
 
   const id = typeof buildRalphRunId === 'function'
     ? buildRalphRunId('looptitle', '20260831')
@@ -321,9 +337,9 @@ async function runMechanical(root) {
     mapMergeThrew
   }).findings);
 
-  // L1-S7a Current policy
-  const planText = rewritePlanCurrent(cwd, lifeId);
-  findings.push(...checkCurrentPolicy(planText).findings);
+  // L1-S7a rewrite live Goal/验收/Steps; history goes to dated progress.md
+  const rewritten = rewritePlanCurrent(cwd, lifeId);
+  findings.push(...checkCurrentPolicy(rewritten.plan, rewritten.progress).findings);
 
   // L1-S8 end orthogonal + judgment
   const strictId = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopstrict', '20260831') : 'task-loopstrict';
@@ -345,6 +361,88 @@ async function runMechanical(root) {
   writeEndDryRun(cwd, { integration: decision.integration, source: decision.source });
   const after = gatesHash(loadRun(strictId, cwd));
   findings.push(...checkEndOrthogonal(cwd, before, after).findings);
+
+  // L1-S9 review-slice slug is not a new requirement
+  const sliceId = 'task-loop-review-fix';
+  let sliceThrew = false;
+  let sliceMessage = '';
+  try {
+    initRun({
+      run_id: sliceId,
+      title: '按审查修三点',
+      goal: '审查修复',
+      intensity: 'standard',
+      attach_knowledge: false
+    }, cwd);
+  } catch (error) {
+    sliceThrew = true;
+    sliceMessage = error && error.message ? error.message : String(error);
+  }
+  findings.push(...checkReviewSliceRefuse({ threw: sliceThrew, message: sliceMessage }).findings);
+  initRun({
+    run_id: sliceId,
+    title: '按审查修三点',
+    goal: '审查修复',
+    intensity: 'standard',
+    attach_knowledge: false,
+    force: true
+  }, cwd);
+  const indexPath = path.join(cwd, INDEX_MD_REL || path.join('.workflow', 'ralph', 'index.md'));
+  const indexText = fs.existsSync(indexPath) ? fs.readFileSync(indexPath, 'utf8') : '';
+  findings.push(...checkSameRequirementIndex(indexText).findings);
+
+  // L1-S10 same session / host.thread_id refuses a second init
+  const sessId = '019f00aa-2222-7000-8000-labloop0001';
+  const sessA = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopsessa', '20260831') : 'task-loopsessa';
+  const sessB = typeof buildRalphRunId === 'function' ? buildRalphRunId('loopsessb', '20260831') : 'task-loopsessb';
+  initRun({
+    run_id: sessA,
+    title: 'session first',
+    goal: 'first live in this session',
+    intensity: 'standard',
+    attach_knowledge: false,
+    host: { thread_id: sessId }
+  }, cwd);
+  let sessThrew = false;
+  let sessMessage = '';
+  try {
+    initRun({
+      run_id: sessB,
+      title: 'session second',
+      goal: 'must refuse same thread',
+      intensity: 'standard',
+      attach_knowledge: false,
+      thread_id: sessId
+    }, cwd);
+  } catch (error) {
+    sessThrew = true;
+    sessMessage = error && error.message ? error.message : String(error);
+  }
+  findings.push(...checkSameSessionRefuse({
+    threw: sessThrew,
+    message: sessMessage,
+    liveRunId: sessA
+  }).findings);
+  let hostThrew = false;
+  let hostMessage = '';
+  try {
+    initRun({
+      run_id: sessB,
+      title: 'session via host',
+      goal: 'must refuse host.thread_id',
+      intensity: 'standard',
+      attach_knowledge: false,
+      host: { thread_id: sessId }
+    }, cwd);
+  } catch (error) {
+    hostThrew = true;
+    hostMessage = error && error.message ? error.message : String(error);
+  }
+  findings.push(...checkSameSessionRefuse({
+    threw: hostThrew,
+    message: hostMessage,
+    liveRunId: sessA
+  }).findings);
 
   // isolation negative: dummy TC dir does not change run hash / we have no plane revision here
   const hashBefore = crypto.createHash('sha256').update(fs.readFileSync(ralphRunJsonPath(cwd, strictId))).digest('hex');

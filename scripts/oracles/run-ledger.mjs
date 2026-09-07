@@ -24,7 +24,7 @@ export function checkResumeAbandon({ resumeThrew, abandonThrew, recoverOk, sameI
   return { ok: findings.length === 0, findings };
 }
 
-export function checkCurrentPolicy(planText) {
+export function checkCurrentPolicy(planText, progressText = '') {
   const findings = [];
   const zhCurrent = [...planText.matchAll(/^### 当前\s*$/gm)];
   if (zhCurrent.length > 1) {
@@ -32,7 +32,7 @@ export function checkCurrentPolicy(planText) {
     const second = zhCurrent[1].index;
     const between = planText.slice(0, second);
     if (!/^### (已落地|已取代)\s*$/m.test(between.slice(first))) {
-      findings.push(finding('L1-S7a', 'second ### 当前 appeared before old block was 已落地/已取代', 'Move 当前 → 已落地/已取代 first.'));
+      findings.push(finding('L1-S7a', 'second ### 当前 appeared before old block was 已落地/已取代', 'Leftover runs: move 当前 → 已落地/已取代 first. New runs rewrite Goal/验收/Steps.'));
     }
   }
   const current = [...planText.matchAll(/^## Current\b/gm)];
@@ -41,14 +41,24 @@ export function checkCurrentPolicy(planText) {
     const second = current[1].index;
     const between = planText.slice(0, second);
     if (!/^## (Landed|Superseded)\b/m.test(between.slice(first))) {
-      findings.push(finding('L1-S7a', 'second ## Current appeared before old block was Landed/Superseded', 'Move Current → Landed/Superseded first.'));
+      findings.push(finding('L1-S7a', 'second ## Current appeared before old block was Landed/Superseded', 'Leftover runs: move Current → Landed/Superseded first.'));
     }
   }
-  const hasLanded = /^### (已落地|已取代)\s*$/m.test(planText)
+  if (!/^## Goal\s*$/m.test(planText) || !/^## 验收\s*$/m.test(planText) || !/^## (Steps|步骤)\s*$/m.test(planText)) {
+    findings.push(finding('L1-S7a', 'live task_plan.md missing Goal / 验收 / Steps after rewrite', 'Rewrite the current contract in place.'));
+  }
+  if (!/New contract after approach change/.test(planText)) {
+    findings.push(finding('L1-S7a', 'live Goal was not rewritten', 'Replace Goal with the new contract.'));
+  }
+  const grewHistory = /^### (已落地|已取代)\s*$/m.test(planText)
     || /^## Landed\b/m.test(planText)
-    || /^## Superseded\b/m.test(planText);
-  if (!hasLanded) {
-    findings.push(finding('L1-S7a', 'task_plan.md/plan.md has no Landed/Superseded after rewrite', 'Preserve old Current under Landed or Superseded.'));
+    || /^## Superseded\b/m.test(planText)
+    || /^REQ-\d+/m.test(planText);
+  if (grewHistory) {
+    findings.push(finding('L1-S7a', 'live task_plan.md grew 已落地/Landed/REQ ledger', 'History belongs in dated progress.md.'));
+  }
+  if (!/^## \d{4}-\d{2}-\d{2}.+approach change/m.test(progressText)) {
+    findings.push(finding('L1-S7a', 'progress.md has no dated approach-change section', 'Append ## YYYY-MM-DD — approach change with the old contract.'));
   }
   return { ok: findings.length === 0, findings };
 }

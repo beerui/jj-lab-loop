@@ -23,4 +23,4 @@ node scripts/lab.mjs oracle --suite mechanical --json
 
 业务 git toplevel 是 `_materialized/loop-gym/`，control 是 `_materialized/loop-gym-control/`（非 git）。不要在本仓根跑 `$jj-end`。
 
-Agent 场景见 `scenarios/`。机械 oracle 不覆盖 L1-S1/S3b/S7b。
+Agent 场景见 `scenarios/`。机械 oracle 不覆盖 L1-S1/S3b/S7b。L1-S9 / L1-S10 覆盖审查切片拒 init、同会话 `thread_id` 拒第二份。
